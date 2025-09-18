@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
+import usePushNotifications from '@/hooks/usePushNotifications';
 
 interface AnalyticsData {
   period_days: number;
@@ -29,6 +30,7 @@ export default function AdminDashboard() {
   const [period, setPeriod] = useState(7);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isSupported, isSubscribed, subscribe, sendTestNotification } = usePushNotifications();
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
@@ -131,6 +133,16 @@ export default function AdminDashboard() {
                 <option value={90}>90 дней</option>
               </select>
             </div>
+            
+            {isSupported && (
+              <Button 
+                variant={isSubscribed ? "default" : "outline"} 
+                onClick={isSubscribed ? () => sendTestNotification('Тест', 'Тестовое уведомление от КрымБлок') : subscribe}
+              >
+                <Icon name="Bell" className="mr-2 h-4 w-4" />
+                {isSubscribed ? 'Тест уведомления' : 'Включить уведомления'}
+              </Button>
+            )}
             
             <Button variant="outline" onClick={handleLogout}>
               <Icon name="LogOut" className="mr-2 h-4 w-4" />

@@ -108,11 +108,7 @@ export default function AdminLogin() {
             </Button>
           </form>
           
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Демо данные для входа:</p>
-            <p>Логин: <strong>admin</strong></p>
-            <p>Пароль: <strong>admin</strong></p>
-          </div>
+
         </CardContent>
       </Card>
     </div>

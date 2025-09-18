@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Test push notifications stats",
+      "method": "GET",
+      "path": "/?days=7",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "active_subscriptions": "number",
+        "total_notifications": "number",
+        "recent_notifications": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test push subscription",
+      "method": "POST",
+      "path": "/subscribe",
+      "body": {
+        "endpoint": "https://fcm.googleapis.com/fcm/send/test",
+        "keys": {
+          "p256dh": "test-p256dh-key",
+          "auth": "test-auth-key"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
