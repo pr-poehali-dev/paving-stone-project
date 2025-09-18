@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Test admin login",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "username": "admin",
+        "password": "admin"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "token": "string",
+        "user": "object"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test invalid credentials",
+      "method": "POST", 
+      "path": "/",
+      "body": {
+        "username": "admin",
+        "password": "wrong"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Invalid credentials"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

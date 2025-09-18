@@ -3,8 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { usePageTracking, useClickTracking, useScrollTracking } from '@/hooks/useAnalytics';
 
 export default function Index() {
+  usePageTracking();
+  useScrollTracking();
+  const { trackClick } = useClickTracking();
+
   const products = [
     {
       title: 'Тротуарная плитка',
@@ -89,7 +94,11 @@ export default function Index() {
                 по всему Крыму. Собственное производство, быстрая доставка, гарантия качества.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="text-lg px-8">
+                <Button 
+                  size="lg" 
+                  className="text-lg px-8"
+                  onClick={() => trackClick('button', 'Заказать звонок', { location: 'hero' })}
+                >
                   <Icon name="Phone" className="mr-2 h-5 w-5" />
                   Заказать звонок
                 </Button>

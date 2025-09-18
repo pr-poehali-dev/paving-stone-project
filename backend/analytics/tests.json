@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Test analytics GET endpoint",
+      "method": "GET",
+      "path": "/?days=7",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "period_days": "number",
+        "action_types": "array",
+        "daily_stats": "array",
+        "summary": "object"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test save user action",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "session_id": "test-session-123",
+        "action_type": "page_view",
+        "action_details": {"page": "home"},
+        "page_url": "https://example.com/",
+        "referrer": ""
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "action_id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
