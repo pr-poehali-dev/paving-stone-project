@@ -53,17 +53,17 @@ export default function Index() {
     {
       title: 'Парк Победы, Симферополь',
       description: 'Благоустройство центральной аллеи',
-      image: '/img/be45156e-9db4-43e4-90bf-1e9a15580f2f.jpg'
+      image: '/img/b5a7a6b5-bdf0-411c-9756-87ae263c61c5.jpg'
     },
     {
       title: 'Набережная Ялты',
       description: 'Реконструкция пешеходной зоны',
-      image: '/img/d975afe9-264d-4fd2-8597-2ade451e9b7a.jpg'
+      image: '/img/2aa1a432-8e75-4ead-a35d-d882827bd2b0.jpg'
     },
     {
       title: 'ТЦ "Южная Галерея"',
       description: 'Мощение парковочной зоны',
-      image: '/img/be04827a-c947-440b-a721-987aa53048f0.jpg'
+      image: '/img/26f1f763-2ec1-4d22-8152-00feb5d77214.jpg'
     }
   ];
 
@@ -102,7 +102,7 @@ export default function Index() {
             
             <div className="relative animate-scale-in">
               <img 
-                src="/img/be04827a-c947-440b-a721-987aa53048f0.jpg"
+                src="/img/26f1f763-2ec1-4d22-8152-00feb5d77214.jpg"
                 alt="Производство тротуарной плитки КрымБлок"
                 className="rounded-2xl shadow-2xl w-full h-[500px] object-cover"
               />
