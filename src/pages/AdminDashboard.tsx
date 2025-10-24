@@ -46,29 +46,28 @@ export default function AdminDashboard() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/90baacc3-9672-4e72-8453-a68fc83256e2?days=${period}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
-          },
-        }
+        `https://functions.poehali.dev/90baacc3-9672-4e72-8453-a68fc83256e2?days=${period}`
       );
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Analytics data loaded:', data);
         setAnalytics(data);
       } else {
+        const errorText = await response.text();
+        console.error('Analytics error:', response.status, errorText);
         toast({
           variant: 'destructive',
-          title: 'Ошибка',
-          description: 'Не удалось загрузить данные аналитики',
+          title: 'Ошибка загрузки',
+          description: `Статус: ${response.status}`,
         });
       }
     } catch (error) {
+      console.error('Fetch error:', error);
       toast({
         variant: 'destructive',
-        title: 'Ошибка',
-        description: 'Не удалось подключиться к серверу',
+        title: 'Ошибка сети',
+        description: error instanceof Error ? error.message : 'Не удалось подключиться',
       });
     } finally {
       setIsLoading(false);

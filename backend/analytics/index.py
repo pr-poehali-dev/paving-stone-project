@@ -56,7 +56,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Получаем IP адрес
             ip_address = headers.get('x-forwarded-for', '').split(',')[0].strip()
             if not ip_address:
-                ip_address = headers.get('x-real-ip', '')
+                ip_address = headers.get('x-real-ip', '0.0.0.0')
+            if not ip_address or ip_address == '':
+                ip_address = '0.0.0.0'
             
             # Сохраняем в базу
             insert_query = '''
@@ -85,72 +87,85 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             params = event.get('queryStringParameters') or {}
             days = int(params.get('days', 7))
             
+            # Формируем интервал для SQL
+            interval = f"{days} days"
+            
             # Общая статистика
-            stats_query = '''
+            summary_query = f"""
                 SELECT 
                     COUNT(*) as total_actions,
                     COUNT(DISTINCT session_id) as unique_sessions,
-                    COUNT(DISTINCT ip_address) as unique_visitors,
+                    COUNT(DISTINCT ip_address) as unique_visitors
+                FROM user_actions 
+                WHERE timestamp >= NOW() - INTERVAL '{interval}'
+            """
+            
+            cur.execute(summary_query)
+            summary_row = cur.fetchone()
+            
+            # Статистика по типам действий
+            action_types_query = f"""
+                SELECT 
                     action_type,
                     COUNT(*) as action_count
                 FROM user_actions 
-                WHERE timestamp >= NOW() - INTERVAL %s DAY
+                WHERE timestamp >= NOW() - INTERVAL '{interval}'
                 GROUP BY action_type
                 ORDER BY action_count DESC
-            '''
+            """
             
-            cur.execute(stats_query, (days,))
+            cur.execute(action_types_query)
             action_stats = cur.fetchall()
             
             # Статистика по дням
-            daily_query = '''
+            daily_query = f"""
                 SELECT 
                     DATE(timestamp) as date,
                     COUNT(*) as actions,
                     COUNT(DISTINCT session_id) as sessions,
                     COUNT(DISTINCT ip_address) as visitors
                 FROM user_actions 
-                WHERE timestamp >= NOW() - INTERVAL %s DAY
+                WHERE timestamp >= NOW() - INTERVAL '{interval}'
                 GROUP BY DATE(timestamp)
                 ORDER BY date DESC
-            '''
+            """
             
-            cur.execute(daily_query, (days,))
+            cur.execute(daily_query)
             daily_stats = cur.fetchall()
             
             # Популярные страницы
-            pages_query = '''
+            pages_query = f"""
                 SELECT 
                     page_url,
                     COUNT(*) as visits,
                     COUNT(DISTINCT session_id) as unique_visits
                 FROM user_actions 
-                WHERE timestamp >= NOW() - INTERVAL %s DAY
+                WHERE timestamp >= NOW() - INTERVAL '{interval}'
                 AND page_url IS NOT NULL AND page_url != ''
                 GROUP BY page_url
                 ORDER BY visits DESC
                 LIMIT 10
-            '''
+            """
             
-            cur.execute(pages_query, (days,))
+            cur.execute(pages_query)
             popular_pages = cur.fetchall()
             
             # Статистика по часам
-            hourly_query = '''
+            hourly_query = f"""
                 SELECT 
                     EXTRACT(HOUR FROM timestamp) as hour,
                     COUNT(*) as actions
                 FROM user_actions 
-                WHERE timestamp >= NOW() - INTERVAL %s DAY
+                WHERE timestamp >= NOW() - INTERVAL '{interval}'
                 GROUP BY EXTRACT(HOUR FROM timestamp)
                 ORDER BY hour
-            '''
+            """
             
-            cur.execute(hourly_query, (days,))
+            cur.execute(hourly_query)
             hourly_stats = cur.fetchall()
             
             # Браузеры и устройства
-            browsers_query = '''
+            browsers_query = f"""
                 SELECT 
                     CASE 
                         WHEN user_agent LIKE '%Chrome%' THEN 'Chrome'
@@ -161,20 +176,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     END as browser,
                     COUNT(*) as count
                 FROM user_actions 
-                WHERE timestamp >= NOW() - INTERVAL %s DAY
+                WHERE timestamp >= NOW() - INTERVAL '{interval}'
                 AND user_agent IS NOT NULL
                 GROUP BY browser
                 ORDER BY count DESC
-            '''
+            """
             
-            cur.execute(browsers_query, (days,))
+            cur.execute(browsers_query)
             browser_stats = cur.fetchall()
             
             # Формируем ответ
             result = {
                 'period_days': days,
                 'action_types': [
-                    {'action_type': row[3], 'count': row[4]} 
+                    {'action_type': row[0], 'count': row[1]} 
                     for row in action_stats
                 ],
                 'daily_stats': [
@@ -203,9 +218,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     for row in browser_stats
                 ],
                 'summary': {
-                    'total_actions': sum(row[4] for row in action_stats) if action_stats else 0,
-                    'unique_sessions': len(set(row[2] for row in daily_stats)) if daily_stats else 0,
-                    'unique_visitors': len(set(row[3] for row in daily_stats)) if daily_stats else 0
+                    'total_actions': summary_row[0] if summary_row else 0,
+                    'unique_sessions': summary_row[1] if summary_row else 0,
+                    'unique_visitors': summary_row[2] if summary_row else 0
                 }
             }
             

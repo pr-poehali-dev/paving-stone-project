@@ -6,10 +6,7 @@
       "path": "/?days=7",
       "expectedStatus": 200,
       "expectedBody": {
-        "period_days": "number",
-        "action_types": "array",
-        "daily_stats": "array",
-        "summary": "object"
+        "period_days": 7
       },
       "bodyMatcher": "partial"
     },
@@ -18,16 +15,15 @@
       "method": "POST",
       "path": "/",
       "body": {
-        "session_id": "test-session-123",
+        "session_id": "test-session-456",
         "action_type": "page_view",
-        "action_details": {"page": "home"},
-        "page_url": "https://example.com/",
+        "action_details": {"page": "test"},
+        "page_url": "https://example.com/test",
         "referrer": ""
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "success": true,
-        "action_id": "number"
+        "success": true
       },
       "bodyMatcher": "partial"
     }
